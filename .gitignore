@@ -1,0 +1,11 @@
+
+.idea
+backend/node_modules
+backend/public/hot
+backend/public/dist
+backend/public/storage
+backend/public/uploads
+backend/vendor
+backend/.env
+backend/composer.lock
+
