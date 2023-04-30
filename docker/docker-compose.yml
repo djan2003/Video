@@ -1,0 +1,77 @@
+version: "3.7"
+services:
+    video-app:
+        build:
+            args:
+                user: user
+                uid: 1000
+            context: ./
+            dockerfile: containers/backend/Dockerfile
+        container_name: video-app
+        restart: always
+        volumes:
+            - ${APP_PATH}:/var/www
+        networks:
+            - videonetwork
+
+    video-front:
+        build:
+            args:
+                user: ${APP_PATH}/frontend
+            context:  containers/frontend
+        container_name: video-front
+        restart: always
+        ports:
+            - 8888:8080
+        depends_on:
+            - video-pgadmin
+            - video-nginx
+            - video-db
+            - video-app
+        volumes:
+            - ${APP_PATH}/frontend:/app
+        networks:
+            - videonetwork
+    video-db:
+        image: postgres
+        container_name: video-db
+        restart: always
+        environment:
+            - POSTGRES_DB=${DB_DATABASE}
+            - POSTGRES_USER=${DB_USERNAME}
+            - POSTGRES_PASSWORD=${DB_PASSWORD}
+        volumes:
+            - ./conf/postgres/:/docker-entrypoint-initdb.d/
+        ports:
+            - 5432:5432
+        networks:
+            - videonetwork
+
+    video-nginx:
+        image: nginx:alpine
+        container_name: video-nginx
+        restart: always
+        volumes:
+            - ${APP_PATH}:/var/www
+            - ./conf/nginx:/etc/nginx/conf.d
+        ports:
+            - 8090:80
+        networks:
+            - videonetwork
+
+
+    video-pgadmin:
+      container_name: video-pgadmin
+      image: dpage/pgadmin4
+      restart: always
+      environment:
+        PGADMIN_DEFAULT_EMAIL: admin@admin.com
+        PGADMIN_DEFAULT_PASSWORD: ${DB_PASSWORD}
+      ports:
+        - "5049:80"
+      networks:
+        - videonetwork
+
+networks:
+    videonetwork:
+        driver: bridge
