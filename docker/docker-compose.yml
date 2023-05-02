@@ -10,7 +10,7 @@ services:
         container_name: video-app
         restart: always
         volumes:
-            - ${APP_PATH}:/var/www
+            - ${APP_PATH}/backend:/var/www
         networks:
             - videonetwork
 
@@ -52,8 +52,8 @@ services:
         container_name: video-nginx
         restart: always
         volumes:
-            - ${APP_PATH}:/var/www
-            - ./conf/nginx:/etc/nginx/conf.d
+            - ${APP_PATH}/backend:/var/www
+            - ./containers/conf/nginx:/etc/nginx/conf.d
         ports:
             - 8090:80
         networks:
